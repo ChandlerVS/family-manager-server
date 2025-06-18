@@ -31,14 +31,12 @@ impl MigrationManager {
         Ok(())
     }
 
-    /// Get all available migrations in the correct order
     fn get_available_migrations(&self) -> Vec<Box<dyn Migration>> {
         vec![
             Box::new(m001_create_users_table::CreateUsersTableMigration {}),
         ]
     }
 
-    /// Get applied migrations from the database
     async fn get_applied_migrations(&self) -> Result<Vec<String>, crate::error::DatabaseError> {
         let rows = sqlx::query!(
             "SELECT name FROM migrations WHERE applied_at IS NOT NULL ORDER BY id"
@@ -53,7 +51,6 @@ impl MigrationManager {
         Ok(applied)
     }
 
-    /// Run all pending migrations
     pub async fn run_migrations(&self) -> Result<(), crate::error::DatabaseError> {
         info!("Running migrations");
         
@@ -66,7 +63,6 @@ impl MigrationManager {
             if !applied_migrations.contains(&migration_name.to_string()) {
                 info!("Running migration: {}", migration_name);
                 
-                // Run the migration
                 migration.up(&*self.pool).await?;
                 
                 sqlx::query!(
@@ -86,11 +82,9 @@ impl MigrationManager {
         Ok(())
     }
 
-    /// Rollback the last migration
     pub async fn rollback_last(&self) -> Result<(), crate::error::DatabaseError> {
         info!("Rolling back last migration");
         
-        // Get the last applied migration
         let last_migration = sqlx::query!(
             "SELECT name FROM migrations WHERE applied_at IS NOT NULL ORDER BY id DESC LIMIT 1"
         )
@@ -103,7 +97,6 @@ impl MigrationManager {
                 
                 info!("Rolling back migration: {}", migration_name);
                 
-                // Find the migration and execute its down method
                 let available_migrations = self.get_available_migrations();
                 for migration in available_migrations {
                     if migration.name() == migration_name {
@@ -112,7 +105,6 @@ impl MigrationManager {
                     }
                 }
                 
-                // Remove the migration record
                 sqlx::query!(
                     "DELETE FROM migrations WHERE name = $1",
                     migration_name
@@ -130,7 +122,6 @@ impl MigrationManager {
         }
     }
 
-    /// Get migration status
     pub async fn get_migration_status(&self) -> Result<Vec<MigrationStatus>, crate::error::DatabaseError> {
         let available_migrations = self.get_available_migrations();
         let applied_migrations = self.get_applied_migrations().await?;
