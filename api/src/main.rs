@@ -2,7 +2,7 @@ use axum::Router;
 use dotenv::dotenv;
 use tracing::{error, info, Level};
 use tracing_subscriber::FmtSubscriber;
-use database::initialize_database;
+use database::{get_database_manager, initialize_database};
 
 mod routes;
 
@@ -46,6 +46,10 @@ async fn main() {
         error!("{}", e);
         std::process::exit(1);
     }
+
+    let db_manager = get_database_manager().unwrap();
+    // TODO: Do not always run migrations
+    db_manager.run_migrations().await.expect("Failed to run migrations");
 
     let app = Router::new()
         .nest("/api/v1", routes::v1::router());

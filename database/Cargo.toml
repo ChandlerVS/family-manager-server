@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 sqlx = { version = "0.8", features = ["runtime-tokio", "tls-native-tls", "postgres", "json"] }
 thiserror = "2.0"
+tracing = { version = "0.1" }

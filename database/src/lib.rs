@@ -3,7 +3,7 @@ use std::sync::{Arc, OnceLock};
 use sqlx::PgPool;
 
 pub mod error;
-
+pub mod migrations;
 pub struct DatabaseManager {
     pool: Arc<PgPool>,
 }
@@ -11,11 +11,21 @@ pub struct DatabaseManager {
 impl DatabaseManager {
     pub async fn new(database_url: &str) -> Result<Self, crate::error::DatabaseError> {
         let pool = PgPool::connect(database_url).await?;
+        
         Ok(Self { pool: Arc::new(pool) })
     }
 
     pub async fn get_pool(&self) -> Arc<PgPool> {
         Arc::clone(&self.pool)
+    }
+
+    pub async fn run_migrations(&self) -> Result<(), crate::error::DatabaseError> {
+        let migration_manager = migrations::MigrationManager::new(self.get_pool().await);
+
+        migration_manager.initialize().await?;
+        migration_manager.run_migrations().await?;
+
+        Ok(())
     }
 }
 
