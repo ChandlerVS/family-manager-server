@@ -1,14 +1,32 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+use std::sync::{Arc, OnceLock};
+
+use sqlx::PgPool;
+
+pub mod error;
+
+pub struct DatabaseManager {
+    pool: Arc<PgPool>,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+impl DatabaseManager {
+    pub async fn new(database_url: &str) -> Result<Self, crate::error::DatabaseError> {
+        let pool = PgPool::connect(database_url).await?;
+        Ok(Self { pool: Arc::new(pool) })
     }
+
+    pub async fn get_pool(&self) -> Arc<PgPool> {
+        Arc::clone(&self.pool)
+    }
+}
+
+static DATABASE_MANAGER: OnceLock<DatabaseManager> = OnceLock::new();
+
+pub async fn initialize_database(database_url: &str) -> Result<(), crate::error::DatabaseError> {
+    let manager = DatabaseManager::new(database_url).await?;
+    DATABASE_MANAGER.set(manager).map_err(|_| crate::error::DatabaseError::ConnectionError(sqlx::Error::PoolClosed))?;
+    Ok(())
+}
+
+pub fn get_database_manager() -> Option<&'static DatabaseManager> {
+    DATABASE_MANAGER.get()
 }

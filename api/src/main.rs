@@ -1,7 +1,8 @@
 use axum::Router;
 use dotenv::dotenv;
-use tracing::{info, Level};
+use tracing::{error, info, Level};
 use tracing_subscriber::FmtSubscriber;
+use database::initialize_database;
 
 mod routes;
 
@@ -36,6 +37,15 @@ async fn main() {
     };
 
     info!("Starting server in {} environment", environment);
+
+    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+
+    let db_result = initialize_database(&database_url).await;
+
+    if let Err(e) = db_result {
+        error!("{}", e);
+        std::process::exit(1);
+    }
 
     let app = Router::new()
         .nest("/api/v1", routes::v1::router());

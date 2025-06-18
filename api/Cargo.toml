@@ -9,6 +9,7 @@ production = []
 
 [dependencies]
 application = { path = "../application" }
+database = { path = "../database" }
 axum = { version = "0.8", features = ["multipart", "ws"] }
 tokio = { version = "1.44", features = ["full"] }
 dotenv = { version = "0.15" }
