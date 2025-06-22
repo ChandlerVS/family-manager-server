@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::future::Future;
 use std::pin::Pin;
 
-use sqlx::PgPool;
+use sqlx::{PgPool, Row};
 use tracing::info;
 
 mod m001_create_users_table;
@@ -38,7 +38,7 @@ impl MigrationManager {
     }
 
     async fn get_applied_migrations(&self) -> Result<Vec<String>, crate::error::DatabaseError> {
-        let rows = sqlx::query!(
+        let rows = sqlx::query(
             "SELECT name FROM migrations WHERE applied_at IS NOT NULL ORDER BY id"
         )
         .fetch_all(&*self.pool)
@@ -46,7 +46,7 @@ impl MigrationManager {
 
         let mut applied = Vec::new();
         for row in rows {
-            applied.push(row.name);
+            applied.push(row.try_get("name")?);
         }
         Ok(applied)
     }
@@ -65,10 +65,10 @@ impl MigrationManager {
                 
                 migration.up(&*self.pool).await?;
                 
-                sqlx::query!(
-                    "INSERT INTO migrations (name, applied_at) VALUES ($1, NOW())",
-                    migration_name,
+                sqlx::query(
+                    "INSERT INTO migrations (name, applied_at) VALUES ($1, NOW())"
                 )
+                .bind(migration_name)
                 .execute(&*self.pool)
                 .await?;
                 
@@ -85,7 +85,7 @@ impl MigrationManager {
     pub async fn rollback_last(&self) -> Result<(), crate::error::DatabaseError> {
         info!("Rolling back last migration");
         
-        let last_migration = sqlx::query!(
+        let last_migration = sqlx::query(
             "SELECT name FROM migrations WHERE applied_at IS NOT NULL ORDER BY id DESC LIMIT 1"
         )
         .fetch_optional(&*self.pool)
@@ -93,7 +93,7 @@ impl MigrationManager {
 
         match last_migration {
             Some(row) => {
-                let migration_name = row.name;
+                let migration_name: String = row.try_get("name")?;
                 
                 info!("Rolling back migration: {}", migration_name);
                 
@@ -105,10 +105,10 @@ impl MigrationManager {
                     }
                 }
                 
-                sqlx::query!(
-                    "DELETE FROM migrations WHERE name = $1",
-                    migration_name
+                sqlx::query(
+                    "DELETE FROM migrations WHERE name = $1"
                 )
+                .bind(&migration_name)
                 .execute(&*self.pool)
                 .await?;
                 
