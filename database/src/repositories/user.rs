@@ -12,6 +12,20 @@ impl UserRepository {
     }
 }
 
+impl UserRepository {
+    pub async fn find_by_email(&self, email: &str) -> Result<Option<UserRecord>, crate::error::DatabaseError> {
+        let user: Option<UserRecord> = sqlx::query_as!(
+            UserRecord,
+            r#"
+            SELECT * FROM users WHERE email = $1
+            "#, email)
+            .fetch_optional(&*self.pool)
+            .await?;
+
+        Ok(user)
+    }
+}
+
 impl Repository<UserRecord, UserRecordMutation> for UserRepository {
     async fn find_by_id(&self, id: i32) -> Result<Option<UserRecord>, crate::error::DatabaseError> {
         let user: Option<UserRecord> = sqlx::query_as!(
