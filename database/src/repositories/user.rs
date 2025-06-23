@@ -1,15 +1,9 @@
-use crate::{records::user::{UserRecordMutation, UserRecord}, repositories::Repository, records::PaginatedRecords};
+use crate::{get_database_manager, records::{user::{UserRecord, UserRecordMutation}, PaginatedRecords}, repositories::Repository};
 use std::sync::Arc;
 use sqlx::PgPool;
 
 pub struct UserRepository {
     pool: Arc<PgPool>,
-}
-
-impl UserRepository {
-    pub fn new(pool: Arc<PgPool>) -> Self {
-        Self { pool }
-    }
 }
 
 impl UserRepository {
@@ -27,6 +21,18 @@ impl UserRepository {
 }
 
 impl Repository<UserRecord, UserRecordMutation> for UserRepository {
+    fn new(pool: Arc<PgPool>) -> Self {
+        Self {
+            pool
+        }
+    }
+
+    async fn get() -> Self {
+        let pool = get_database_manager().unwrap().get_pool().await;
+
+        Self::new(pool)
+    }
+
     async fn find_by_id(&self, id: i32) -> Result<Option<UserRecord>, crate::error::DatabaseError> {
         let user: Option<UserRecord> = sqlx::query_as!(
             UserRecord,
