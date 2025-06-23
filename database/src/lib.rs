@@ -4,6 +4,8 @@ use sqlx::PgPool;
 
 pub mod error;
 pub mod migrations;
+pub mod records;
+pub mod repositories;
 pub struct DatabaseManager {
     pool: Arc<PgPool>,
 }
