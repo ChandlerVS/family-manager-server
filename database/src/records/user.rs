@@ -12,6 +12,7 @@ pub struct UserRecord {
     pub updated_at: Option<DateTime<Utc>>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UserRecordMutation {
     pub first_name: String,
     pub last_name: String,

@@ -11,6 +11,7 @@ pub struct PermissionRecord {
     pub updated_at: Option<DateTime<Utc>>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PermissionRecordMutation {
     pub name: String,
     pub resource: Option<String>,

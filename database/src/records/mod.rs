@@ -4,6 +4,9 @@ pub mod role;
 pub mod user_role;
 pub mod role_permission;
 
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PaginatedRecords<T> {
     pub records: Vec<T>,
     pub total: u64,

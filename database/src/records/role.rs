@@ -10,6 +10,7 @@ pub struct RoleRecord {
     pub updated_at: Option<DateTime<Utc>>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct RoleRecordMutation {
     pub name: String,
     pub description: Option<String>,

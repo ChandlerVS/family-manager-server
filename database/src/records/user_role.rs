@@ -9,6 +9,7 @@ pub struct UserRoleRecord {
     pub created_at: Option<DateTime<Utc>>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UserRoleRecordMutation {
     pub user_id: i32,
     pub role_id: i32,
