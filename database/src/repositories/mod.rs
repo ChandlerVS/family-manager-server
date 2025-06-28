@@ -1,4 +1,9 @@
 pub mod user;
+pub mod permission;
+pub mod role;
+pub mod user_role;
+pub mod role_permission;
+
 use crate::records::PaginatedRecords;
 use std::{future::Future, sync::Arc};
 use sqlx::PgPool;

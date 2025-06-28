@@ -1,4 +1,8 @@
 pub mod user;
+pub mod permission;
+pub mod role;
+pub mod user_role;
+pub mod role_permission;
 
 pub struct PaginatedRecords<T> {
     pub records: Vec<T>,
