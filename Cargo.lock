@@ -354,7 +354,7 @@ dependencies = [
  "chrono",
  "serde",
  "sqlx",
- "thiserror 2.0.12",
+ "thiserror 1.0.69",
  "tracing",
 ]
 

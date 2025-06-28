@@ -10,10 +10,10 @@ production = []
 [dependencies]
 application = { path = "../application", features = ["axum"] }
 database = { path = "../database" }
-axum = { version = "0.8", features = ["multipart", "ws"] }
-tokio = { version = "1.44", features = ["full"] }
-dotenv = { version = "0.15" }
-tracing = { version = "0.1" }
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+axum.workspace = true
+tokio.workspace = true
+dotenv.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+serde.workspace = true
+serde_json.workspace = true
