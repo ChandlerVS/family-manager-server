@@ -6,6 +6,9 @@ use sqlx::{PgPool, Row};
 use tracing::info;
 
 mod m001_create_users_table;
+mod m002_create_permissions_table;
+mod m003_create_roles_table;
+mod m004_create_user_roles_table;
 
 pub struct MigrationManager {
     pool: Arc<PgPool>,
@@ -34,6 +37,9 @@ impl MigrationManager {
     fn get_available_migrations(&self) -> Vec<Box<dyn Migration>> {
         vec![
             Box::new(m001_create_users_table::CreateUsersTableMigration {}),
+            Box::new(m002_create_permissions_table::CreatePermissionsTableMigration {}),
+            Box::new(m003_create_roles_table::CreateRolesTableMigration {}),
+            Box::new(m004_create_user_roles_table::CreateUserRolesTableMigration {}),
         ]
     }
 
