@@ -8,8 +8,10 @@ database = { path = "../database" }
 serde.workspace = true
 thiserror.workspace = true
 argon2.workspace = true
+tracing.workspace = true
 axum = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }
+jsonwebtoken = { version = "9.3" }
 
 [features]
 axum = ["dep:axum", "dep:serde_json"]
